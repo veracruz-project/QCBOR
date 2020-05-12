@@ -7,7 +7,7 @@
 # See BSD-3-Clause license in README.md
 #
 
-CC=cc
+CC?=cc
 #CC=/usr/local/bin/gcc-9
 
 CFLAGS=-I inc -I test -Os -fPIC
