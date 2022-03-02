@@ -7,14 +7,10 @@
 # See BSD-3-Clause license in README.md
 #
 
-CC?=cc
+CC=cc
 #CC=/usr/local/bin/gcc-9
 
 CFLAGS=-I inc -I test -Os -fPIC
-
-SRC_DIR=src
-
-OUT_DIR?=$(SRC_DIR)
 
 # The following are used before a release of QCBOR help to make sure
 # the code compiles and runs in the most strict environments, but not
@@ -22,8 +18,7 @@ OUT_DIR?=$(SRC_DIR)
 #CFLAGS=-I inc -I test -Os -fpic -Wall -pedantic-errors -Wextra -Wshadow -Wparentheses -Wconversion -xc -std=c99
 
 
-QCBOR_OBJ=$(OUT_DIR)/UsefulBuf.o $(OUT_DIR)/qcbor_encode.o $(OUT_DIR)/qcbor_decode.o $(OUT_DIR)/ieee754.o $(OUT_DIR)/qcbor_err_to_str.o
-QCBOR_SRC=($(QCBOR_OBJ):$(OUT_DIR)/%.o, $(SRC_DIR)/%.c)
+QCBOR_OBJ=src/UsefulBuf.o src/qcbor_encode.o src/qcbor_decode.o src/ieee754.o src/qcbor_err_to_str.o
 
 TEST_OBJ=test/UsefulBuf_Tests.o test/qcbor_encode_tests.o \
     test/qcbor_decode_tests.o test/run_tests.o \
@@ -31,33 +26,18 @@ TEST_OBJ=test/UsefulBuf_Tests.o test/qcbor_encode_tests.o \
 
 .PHONY: all so install uninstall clean
 
-all: $(OUT_DIR)/libqcbor.a
+all: qcbortest qcbormin libqcbor.a
 
 so:	libqcbor.so
 
-#qcbortest: libqcbor.a $(TEST_OBJ) cmd_line_main.o
-#	$(CC) -o $@ $^  libqcbor.a
+qcbortest: libqcbor.a $(TEST_OBJ) cmd_line_main.o
+	$(CC) -o $@ $^  libqcbor.a
 
-#qcbormin: libqcbor.a min_use_main.o
-#	$(CC) -dead_strip -o $@ $^ libqcbor.a
+qcbormin: libqcbor.a min_use_main.o
+	$(CC) -dead_strip -o $@ $^ libqcbor.a
 
-$(OUT_DIR)/libqcbor.a: $(QCBOR_OBJ)
+libqcbor.a: $(QCBOR_OBJ)
 	ar -r $@ $^
-
-$(OUT_DIR)/UsefulBuf.o: $(SRC_DIR)/UsefulBuf.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-$(OUT_DIR)/qcbor_encode.o: $(SRC_DIR)/qcbor_encode.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-$(OUT_DIR)/qcbor_decode.o: $(SRC_DIR)/qcbor_decode.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-$(OUT_DIR)/ieee754.o: $(SRC_DIR)/ieee754.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-$(OUT_DIR)/qcbor_err_to_str.o: $(SRC_DIR)/qcbor_err_to_str.c
-	$(CC) -c $(CFLAGS) -o $@ $^
 
 # The shared library is not made by default because of platform
 # variability For example MacOS and Linux behave differently and some
